@@ -8,7 +8,6 @@ import peergos.server.corenode.JDBCCoreNode;
 import peergos.server.storage.RAMStorage;
 import peergos.shared.corenode.UserPublicKeyLink;
 import peergos.shared.crypto.SigningKeyPair;
-import peergos.shared.crypto.TweetNaCl;
 import peergos.shared.crypto.asymmetric.PublicSigningKey;
 import peergos.shared.crypto.asymmetric.curve25519.Ed25519;
 import peergos.shared.crypto.hash.PublicKeyHash;
@@ -21,7 +20,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Function;
 
 public class JDBCCoreNodeTests {
@@ -45,9 +43,9 @@ public class JDBCCoreNodeTests {
 
     Function<String, Boolean> signup  = username -> {
         SigningKeyPair user = SigningKeyPair.random(new SafeRandom.Java(), new Ed25519.Java());
-        UserPublicKeyLink.UsernameClaim node = UserPublicKeyLink.UsernameClaim.create(
-            username, user.secretSigningKey, LocalDate.now().plusYears(2));
         try {
+            UserPublicKeyLink.Claim node = UserPublicKeyLink.Claim.create(
+                    username, user.secretSigningKey, LocalDate.now().plusYears(2), Arrays.asList(STORAGE.id().get()));
             PublicKeyHash owner = STORAGE.putSigningKey(
                     user.secretSigningKey.signatureOnly(user.publicSigningKey.serialize()),
                     ContentAddressedStorage.hashKey(user.publicSigningKey),
