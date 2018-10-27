@@ -11,6 +11,7 @@ import peergos.shared.crypto.asymmetric.*;
 import peergos.shared.crypto.asymmetric.curve25519.*;
 import peergos.shared.crypto.hash.*;
 import peergos.shared.crypto.password.*;
+import peergos.shared.io.ipfs.multihash.*;
 import peergos.shared.merklebtree.*;
 import peergos.shared.mutable.*;
 import peergos.shared.social.*;
@@ -243,10 +244,12 @@ public class Start
 
             CoreNode core = HTTPCoreNode.getInstance(coreAddress);
             SocialNetwork social = HttpSocialNetwork.getInstance(socialAddress);
-            MutablePointers mutable = HttpMutablePointers.getInstance(coreAddress);
+            Multihash nodeId = dht.id().get();
+            MutablePointersProxy httpMutable = new HttpMutablePointers(new JavaPoster(coreAddress));
+            MutablePointers p2mMutable = new ProxyingMutablePointers(nodeId, core, httpMutable);
             String blacklistPath = "blacklist.txt";
-            PublicKeyBlackList blacklist = new UserBasedBlacklist(Paths.get(blacklistPath), core, mutable, dht);
-            MutablePointers mutablePointers = new BlockingMutablePointers(new PinningMutablePointers(mutable, dht), blacklist);
+            PublicKeyBlackList blacklist = new UserBasedBlacklist(Paths.get(blacklistPath), core, p2mMutable, dht);
+            MutablePointers mutablePointers = new BlockingMutablePointers(new PinningMutablePointers(p2mMutable, dht), blacklist);
 
             Path userPath = Paths.get(a.getArg("whitelist_path", "user_whitelist.txt"));
             int delayMs = a.getInt("whitelist_sleep_period", 1000 * 60 * 10);
