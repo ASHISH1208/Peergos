@@ -250,7 +250,7 @@ public class Start
             SocialNetworkProxy httpSocial = new HttpSocialNetwork(new JavaPoster(socialAddress), ipfsPoster);
             SocialNetwork p2pSocial = new ProxyingSocialNetwork(nodeId, core, httpSocial);
 
-            MutablePointersProxy httpMutable = new HttpMutablePointers(new JavaPoster(coreAddress));
+            MutablePointersProxy httpMutable = new HttpMutablePointers(new JavaPoster(coreAddress), ipfsPoster);
             MutablePointers p2mMutable = new ProxyingMutablePointers(nodeId, core, httpMutable);
             String blacklistPath = "blacklist.txt";
             PublicKeyBlackList blacklist = new UserBasedBlacklist(Paths.get(blacklistPath), core, p2mMutable, dht);
