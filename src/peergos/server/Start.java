@@ -231,13 +231,15 @@ public class Start
             int webPort = a.getInt("port");
             URL coreAddress = new URI(a.getArg("corenodeURL")).toURL();
             URL socialAddress = new URI(a.getArg("socialnodeURL")).toURL();
+            URL ipfsAddress = new URI(a.getArg("ipfsURL", "localhost:5001")).toURL();
             String domain = a.getArg("domain");
             InetSocketAddress userAPIAddress = new InetSocketAddress(domain, webPort);
 
             boolean useIPFS = a.getBoolean("useIPFS");
             int dhtCacheEntries = 1000;
             int maxValueSizeToCache = 50 * 1024;
-            ContentAddressedStorage dht = useIPFS ? new CachingStorage(new IpfsDHT(), dhtCacheEntries, maxValueSizeToCache) : RAMStorage.getSingleton();
+            JavaPoster ipfsPoster = new JavaPoster(ipfsAddress);
+            ContentAddressedStorage dht = useIPFS ? new CachingStorage(new ContentAddressedStorage.HTTP(ipfsPoster), dhtCacheEntries, maxValueSizeToCache) : RAMStorage.getSingleton();
 
             // start the User Service
             String hostname = a.getArg("domain");
@@ -245,7 +247,7 @@ public class Start
             Multihash nodeId = dht.id().get();
             CoreNode core = new HTTPCoreNode(new JavaPoster(coreAddress));
 
-            SocialNetworkProxy httpSocial = new HttpSocialNetwork(new JavaPoster(socialAddress));
+            SocialNetworkProxy httpSocial = new HttpSocialNetwork(new JavaPoster(socialAddress), ipfsPoster);
             SocialNetwork p2pSocial = new ProxyingSocialNetwork(nodeId, core, httpSocial);
 
             MutablePointersProxy httpMutable = new HttpMutablePointers(new JavaPoster(coreAddress));
