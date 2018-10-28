@@ -231,7 +231,7 @@ public class Start
             int webPort = a.getInt("port");
             URL coreAddress = new URI(a.getArg("corenodeURL")).toURL();
             URL socialAddress = new URI(a.getArg("socialnodeURL")).toURL();
-            URL ipfsAddress = new URI(a.getArg("ipfsURL", "localhost:5001")).toURL();
+            URL ipfsAddress = new URI(a.getArg("ipfsURL", "http://localhost:5001")).toURL();
             String domain = a.getArg("domain");
             InetSocketAddress userAPIAddress = new InetSocketAddress(domain, webPort);
 
